@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import './Home.css';
-import { PostData } from '../../services/PostData';
 import axios from 'axios';
-import UserFeed from "../UserFeed/UserFeed";
-import ReactConfirmAlert, { confirmAlert } from 'react-confirm-alert';
 import '../../styles/react-confirm-alert.css';
 import { Grid, Typography } from '@material-ui/core';
 import Notes from '../Notes/Notes';
@@ -18,24 +15,24 @@ class Home extends Component {
       userFeed: '',
       redirectToReferrer: false,
       name: '',
-      showForm: true,
       title: '',
-      description: ''
-
+      description: '',
+      showForm: true,
+      showFormEdit: true,
+      titleUpdate: '',
+      descriptionUpdate: '',
     };
 
     this.getUserFeed = this.getUserFeed.bind(this);
-    this.feedUpdate = this.feedUpdate.bind(this);
+    this.updateNote = this.updateNote.bind(this);
+    this.updateNoteAction = this.updateNoteAction.bind(this);
     this.onChange = this.onChange.bind(this);
     this.createNote = this.createNote.bind(this);
     this.deleteNote = this.deleteNote.bind(this);
-    this.deleteFeedAction = this.deleteFeedAction.bind(this);
-    this.convertTime = this.convertTime.bind(this);
     this.logout = this.logout.bind(this);
   }
 
   componentWillMount() {
-
     if (localStorage.getItem("userData")) {
       this.getUserFeed();
     }
@@ -44,50 +41,30 @@ class Home extends Component {
     }
   }
 
-  feedUpdate(e) {
-    e.preventDefault();
-    let data = JSON.parse(localStorage.getItem("userData"));
-    // let postData = { user_id: data.userData.user_id, token: data.userData.token, feed: this.state.userFeed };
-    // console.log("🚀 ~ file: Home.jsx ~ line 48 ~ Home ~ feedUpdate ~ data", data)
-    if (this.state.userFeed) {
-      // PostData('feedUpdate', postData).then((result) => {
-      //   let responseJson = result;
-      //   let K = [responseJson.feedData].concat(this.state.data);
-      //   console.log(K);
-      //   this.setState({ data: K, userFeed: '' });
-      // } 
-      // );
-    }
+  updateNote(data) {
+    console.log("🚀 ~ file: Home.jsx ~ line 44 ~ Home ~ updateNote ~ data", data)
+    this.setState({ showFormEdit: false, titleUpdate: data.title, descriptionUpdate: data.description, data: data })
   }
-
-  convertTime(created) {
-    let date = new Date(created * 1000);
-    return date;
-  }
-
-  deleteFeedAction(e) {
-    console.log("HI");
-    let updateIndex = e.target.getAttribute('value');
-    let feed_id = e.target.getAttribute('data');
-
-    let data = JSON.parse(sessionStorage.getItem("userData"));
-
-    let postData = { user_id: data.userData.user_id, token: data.userData.token, feed_id: feed_id };
-    if (postData) {
-      PostData('feedDelete', postData).then((result) => {
-        this
-          .state
-          .data.splice(updateIndex, 1);
-        this.setState({
-          data: this
-            .state
-            .data
-        });
+  updateNoteAction() {
+    var data = this.state.data
+    if (this.state.descriptionUpdate && this.state.titleUpdate) {
+      axios.post('http://162.243.161.34:8080/api/notes/update', {
+        "id": data.id,
+        "title": this.state.titleUpdate,
+        "description": this.state.descriptionUpdate,
+        "idUser": data.idUser
+      }
+      ).then((response) => {
+        if (response.data.code === 1) {
+          alert(response.data.message)
+        } else {
+          alert('Ocusrrio un error')
+        }
+      }).catch((error) => {
+        console.log('error:', error);
       });
     }
   }
-
-
 
   getUserFeed() {
     let data = JSON.parse(localStorage.getItem("userData"));
@@ -104,22 +81,17 @@ class Home extends Component {
     });
     if (data) {
       this.setState({ data: data })
-      console.log(this.state);
     }
   }
-  onChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
-  }
+
   createNote() {
     if (this.state.title && this.state.description) {
-      console.log("🚀 ~ file: Home.jsx ~ line 128 ~ Home ~ createNote ~ this.state.title && this.state.description", this.state.title, this.state.description)
       axios.post('http://162.243.161.34:8080/api/notes/create', {
         "title": this.state.title,
         "description": this.state.description,
         "idUser": this.state.data.id
       }
       ).then((response) => {
-        console.log("🚀 ~ file: Home.jsx ~ line 134 ~ Home ~ ).then ~ response", response)
         if (response.data) {
           alert(response.data.message)
         } else {
@@ -131,6 +103,9 @@ class Home extends Component {
     } else {
       alert('Ocurrio un Error')
     }
+  }
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
   }
 
   deleteNote(id) {
@@ -181,13 +156,27 @@ class Home extends Component {
                   <input type="text" name="title" placeholder="Identifica tu nota" onChange={this.onChange} />
                   <label>Descripción</label>
                   <input type="text" name="description" placeholder="Descripción" onChange={this.onChange} />
-                  <input type="submit" className="button submit" value="Crear" />
+                  <input type="submit" className="button submit" value="Crear" onClick={() => this.createNote} />
                   <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showForm: true })} />
                 </Grid>
               </Grid >
             </Grid>
           </form>
-          {/* <input name="userFeed" onChange={this.onChange} value={this.state.userFeed} type="text" placeholder="Ingresar una nueva nota" /> */}
+          <form onSubmit={this.updateNoteAction} hidden={this.state.showFormEdit}>
+            <Grid item container sx={12} sm={6} className="row" id="Body">
+              <Grid item className="medium-5 columns left box-container">
+                <Grid item className='container-form'>
+                  <h4>Edición</h4>
+                  <label>Título</label>
+                  <input type="text" name="titleUpdate" placeholder={this.state.titleUpdate} onChange={this.onChange} />
+                  <label>Descripción</label>
+                  <input type="text" name="descriptionUpdate" placeholder={this.state.descriptionUpdate} onChange={this.onChange} />
+                  <input type="submit" className="button submit" value="Aceptar" onClick={() => this.updateNoteAction} />
+                  <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showFormEdit: true })} />
+                </Grid>
+              </Grid >
+            </Grid>
+          </form>
           <Grid item hidden={!this.state.showForm}>
             <input
               type="submit"
@@ -200,7 +189,7 @@ class Home extends Component {
         <Grid container>
           {
             this.state.notes.data ?
-              <Notes notes={this.state.notes.data} deleteNote={this.deleteNote} />
+              <Notes notes={this.state.notes.data} deleteNote={this.deleteNote} updateNote={this.updateNote} />
               :
               <Grid>
                 No hay notas

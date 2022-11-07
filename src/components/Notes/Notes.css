@@ -24,7 +24,7 @@ ul {
     justify-content: center;
 }
 
-ul li a {
+ul li {
     text-decoration: none;
     color: #000;
     background: #ffc;
