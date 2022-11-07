@@ -1,0 +1,9 @@
+.img-dim {
+    font-family: sans-serif;
+    text-align: center;
+    display: block;
+    margin: auto;
+    height: 90vh;
+    background-repeat: no-repeat;
+    background-size: 100%;
+}
