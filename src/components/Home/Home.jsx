@@ -28,7 +28,7 @@ class Home extends Component {
     this.feedUpdate = this.feedUpdate.bind(this);
     this.onChange = this.onChange.bind(this);
     this.createNote = this.createNote.bind(this);
-    this.deleteFeed = this.deleteFeed.bind(this);
+    this.deleteNote = this.deleteNote.bind(this);
     this.deleteFeedAction = this.deleteFeedAction.bind(this);
     this.convertTime = this.convertTime.bind(this);
     this.logout = this.logout.bind(this);
@@ -87,17 +87,7 @@ class Home extends Component {
     }
   }
 
-  deleteFeed(e) {
-    confirmAlert({
-      title: '',
-      message: 'Are you sure?',
-      childrenElement: () => '',
-      confirmLabel: 'Delete',
-      cancelLabel: 'Cancel',
-      onConfirm: () => this.deleteFeedAction(e),
-      onCancel: () => '',
-    })
-  }
+
 
   getUserFeed() {
     let data = JSON.parse(localStorage.getItem("userData"));
@@ -123,16 +113,15 @@ class Home extends Component {
   createNote() {
     if (this.state.title && this.state.description) {
       console.log("🚀 ~ file: Home.jsx ~ line 128 ~ Home ~ createNote ~ this.state.title && this.state.description", this.state.title, this.state.description)
-      axios.post(`http://162.243.161.34:8080/api/notes/create`, {
+      axios.post('http://162.243.161.34:8080/api/notes/create', {
         "title": this.state.title,
         "description": this.state.description,
         "idUser": this.state.data.id
       }
       ).then((response) => {
         console.log("🚀 ~ file: Home.jsx ~ line 134 ~ Home ~ ).then ~ response", response)
-        if (response && response.data.code === 1) {
-          localStorage.setItem('userData', JSON.stringify(response.data.data))
-          this.setState({ stateAuth: true })
+        if (response.data) {
+          alert(response.data.message)
         } else {
           alert('Ocusrrio un error')
         }
@@ -142,7 +131,23 @@ class Home extends Component {
     } else {
       alert('Ocurrio un Error')
     }
+  }
 
+  deleteNote(id) {
+    console.log("🚀 ~ file: Home.jsx ~ line 91 ~ Home ~ deleteNote ~ id", id)
+    axios.post('http://162.243.161.34:8080/api/notes/delete', {
+      "id": id
+    }
+    ).then((response) => {
+      if (response.data) {
+        this.getUserFeed()
+        alert(response.data.message)
+      } else {
+        alert('Ocusrrio un error')
+      }
+    }).catch((error) => {
+      console.log('error:', error);
+    });
   }
 
   logout() {
@@ -195,15 +200,13 @@ class Home extends Component {
         <Grid container>
           {
             this.state.notes.data ?
-              <Notes notes={this.state.notes.data} />
+              <Notes notes={this.state.notes.data} deleteNote={this.deleteNote} />
               :
               <Grid>
                 No hay notas
               </Grid>
           }
-
         </Grid>
-        {/* <UserFeed feedData={this.state.data} deleteFeed={this.deleteFeed} convertTime={this.convertTime} name={this.state.name} /> */}
       </Grid>
     );
   }
