@@ -18,12 +18,16 @@ class Home extends Component {
       userFeed: '',
       redirectToReferrer: false,
       name: '',
-      showForm: false
+      showForm: true,
+      title: '',
+      description: ''
+
     };
 
     this.getUserFeed = this.getUserFeed.bind(this);
     this.feedUpdate = this.feedUpdate.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.createNote = this.createNote.bind(this);
     this.deleteFeed = this.deleteFeed.bind(this);
     this.deleteFeedAction = this.deleteFeedAction.bind(this);
     this.convertTime = this.convertTime.bind(this);
@@ -44,7 +48,7 @@ class Home extends Component {
     e.preventDefault();
     let data = JSON.parse(localStorage.getItem("userData"));
     // let postData = { user_id: data.userData.user_id, token: data.userData.token, feed: this.state.userFeed };
-    console.log("🚀 ~ file: Home.jsx ~ line 48 ~ Home ~ feedUpdate ~ data", data)
+    // console.log("🚀 ~ file: Home.jsx ~ line 48 ~ Home ~ feedUpdate ~ data", data)
     if (this.state.userFeed) {
       // PostData('feedUpdate', postData).then((result) => {
       //   let responseJson = result;
@@ -100,7 +104,6 @@ class Home extends Component {
     this.setState(data);
     axios.post(`http://162.243.161.34:8080/api/notes/find`
     ).then((response) => {
-      console.log("🚀 ~ file: Login.jsx ~ line 28 ~ Login ~ ).then ~ response", response)
       if (response && response.data.code === 1) {
         this.setState({ notes: response.data })
       } else {
@@ -109,17 +112,39 @@ class Home extends Component {
     }).catch((error) => {
       console.log('error:', error);
     });
-    // let postData = { user_id: data.userData.user_id, token: data.userData.token };
-
     if (data) {
       this.setState({ data: data })
       console.log(this.state);
     }
   }
-
   onChange(e) {
-    this.setState({ userFeed: e.target.value });
+    this.setState({ [e.target.name]: e.target.value });
   }
+  createNote() {
+    if (this.state.title && this.state.description) {
+      console.log("🚀 ~ file: Home.jsx ~ line 128 ~ Home ~ createNote ~ this.state.title && this.state.description", this.state.title, this.state.description)
+      axios.post(`http://162.243.161.34:8080/api/notes/create`, {
+        "title": this.state.title,
+        "description": this.state.description,
+        "idUser": this.state.data.id
+      }
+      ).then((response) => {
+        console.log("🚀 ~ file: Home.jsx ~ line 134 ~ Home ~ ).then ~ response", response)
+        if (response && response.data.code === 1) {
+          localStorage.setItem('userData', JSON.stringify(response.data.data))
+          this.setState({ stateAuth: true })
+        } else {
+          alert('Ocusrrio un error')
+        }
+      }).catch((error) => {
+        console.log('error:', error);
+      });
+    } else {
+      alert('Ocurrio un Error')
+    }
+
+  }
+
   logout() {
     localStorage.setItem("userData", '');
     localStorage.clear();
@@ -142,28 +167,30 @@ class Home extends Component {
               <a href="/" onClick={this.logout} className="logout">Logout</a>
             </Grid>
           </Grid>
-          <form onSubmit={this.feedUpdate} method="post">
+          <form onSubmit={this.createNote} hidden={this.state.showForm}>
             <Grid item container sx={12} sm={6} className="row" id="Body">
-              <Grid item className="box-container">
+              <Grid item className="medium-5 columns left box-container">
                 <Grid item className='container-form'>
-                  <h4>Nueva Nota</h4>
+                  <h4>Nueva nota</h4>
                   <label>Título</label>
                   <input type="text" name="title" placeholder="Identifica tu nota" onChange={this.onChange} />
                   <label>Descripción</label>
                   <input type="text" name="description" placeholder="Descripción" onChange={this.onChange} />
-                  <input type="submit" className="button submit" value="Crear" onClick={this.signup} />
-                  <input type="button" className="button info" value="Cancelar" onClick={this.signup} />
+                  <input type="submit" className="button submit" value="Crear" />
+                  <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showForm: true })} />
                 </Grid>
               </Grid >
             </Grid>
-            {/* <input name="userFeed" onChange={this.onChange} value={this.state.userFeed} type="text" placeholder="Ingresar una nueva nota" /> */}
+          </form>
+          {/* <input name="userFeed" onChange={this.onChange} value={this.state.userFeed} type="text" placeholder="Ingresar una nueva nota" /> */}
+          <Grid item hidden={!this.state.showForm}>
             <input
               type="submit"
+
               value="New"
               className="button"
-              onClick={this.feedUpdate} />
-          </form>
-
+              onClick={() => this.setState({ showForm: false })} />
+          </Grid>
         </Grid>
         <Grid container>
           {
