@@ -27,14 +27,14 @@ class Login extends Component {
           localStorage.setItem('userData', JSON.stringify(response.data.data))
           this.setState({ stateAuth: true })
         } else {
-          alert('Ocusrrio un error')
+          alert(response.data.message)
         }
       }).catch((error) => {
         console.log('error:', error);
       });
     }
   }
-  
+
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }

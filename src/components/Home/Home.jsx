@@ -141,7 +141,7 @@ class Home extends Component {
         <Grid item className="medium-12 columns">
           <Grid item container spacing={10} alignItems='center' direction='row' >
             <Grid item>
-              <Typography>{this.state.data.name}</Typography>
+              <a href={`/user/${this.state.data.id}`}>{this.state.data.name}</a>
             </Grid>
             <Grid item>
               <a href="/" onClick={this.logout} className="logout">Logout</a>
@@ -180,10 +180,9 @@ class Home extends Component {
           <Grid item hidden={!this.state.showForm}>
             <input
               type="submit"
-
               value="New"
               className="button"
-              onClick={() => this.setState({ showForm: false })} />
+              onClick={() => this.setState({ showForm: false, showFormEdit: true })} />
           </Grid>
         </Grid>
         <Grid container>
@@ -196,7 +195,7 @@ class Home extends Component {
               </Grid>
           }
         </Grid>
-      </Grid>
+      </Grid >
     );
   }
 }
