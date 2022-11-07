@@ -14,16 +14,17 @@ class UserFeed extends Component {
       showFormUpdateFeedUser: true,
       returnLog: false,
       returnHome: false,
-      nameUpdate: '',
-      directionUpdate: '',
-      emailUpdate: '',
-      phoneUpdate: '',
-      usernameUpdate: '',
-      passwordUpdate: '',
+      name: '',
+      direction: '',
+      email: '',
+      phone: '',
+      password: '',
     };
     this.deleteUserFeed = this.deleteUserFeed.bind(this);
     this.getUserFeed = this.getUserFeed.bind(this);
     this.editUserFeed = this.editUserFeed.bind(this);
+    this.clearData = this.clearData.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   deleteUserFeed(id) {
@@ -31,7 +32,6 @@ class UserFeed extends Component {
       "id": id,
     }
     ).then((response) => {
-      console.log("🚀 ~ file: UserFeed.js ~ line 22 ~ UserFeed ~ ).then ~ response", response)
       if (response.data.message) {
         alert(response.data.message)
         this.setState({ returnLog: true })
@@ -54,29 +54,27 @@ class UserFeed extends Component {
       if (response.data.code === 1) {
         var userFeed = response.data.data.find(element => element.id === id)
         this.setState({ dataUsers: userFeed })
-        console.log("🚀 ~ file: UserFeed.js ~ line 68 ~ UserFeed ~ editUserFeed ~ his.state.dataUsers", this.state.dataUsers)
       } else {
-        alert('Ocusrrio un error')
+        alert('Ocurrio un error')
       }
     }).catch((error) => {
       console.log('error:', error);
     });
   }
 
-  editUserFeed(data) {
+  editUserFeed() {
     this.setState({
-      nameUpdate: this.state.dataUsers.name,
-      emailUpdate: this.state.dataUsers.email,
-      phoneUpdate: this.state.dataUsers.phone,
-      passwordUpdate: this.state.dataUsers.password
+      name: this.state.dataUsers.name,
+      email: this.state.dataUsers.email,
+      phone: this.state.dataUsers.phone,
+      password: this.state.dataUsers.password
     })
-    console.log("🚀 ~ file: UserFeed.js ~ line 16 ~ UserFeed ~ deleteUserFeed ~ id", data)
-    if (this.state.nameUpdate &&
-      this.state.directionUpdate &&
-      this.state.emailUpdate &&
-      this.state.phoneUpdate &&
-      this.state.usernameUpdate &&
-      this.state.passwordUpdate) {
+    if (this.state.name &&
+      this.state.direction &&
+      this.state.email &&
+      this.state.phone &&
+      this.state.password) {
+      console.log('Entre')
       axios.post('http://162.243.161.34:8080/api/users/update', {
         "id": this.state.data.id,
         "name": this.state.nameUpdate,
@@ -88,17 +86,29 @@ class UserFeed extends Component {
       }
       ).then((response) => {
         console.log("🚀 ~ file: UserFeed.js ~ line 89 ~ UserFeed ~ ).then ~ response", response)
-        if (response.data.code === 1) {
-          alert(response.data.message);
+        if (response.data) {
           this.setState({ returnHome: true })
+          this.clearData
+          this.getUserFeed
+          alert(response.data.message);
         } else {
+          this.clearData
           alert('Ocusrrio un error')
         }
       }).catch((error) => {
         console.log('error:', error);
+        this.clearData
       });
     }
-
+  }
+  clearData() {
+    this.setState({
+      name: '',
+      direction: '',
+      email: '',
+      phone: '',
+      password: '',
+    })
   }
   onChange(e) {
     e.preventDefault()
@@ -116,6 +126,7 @@ class UserFeed extends Component {
       <Grid container>
         <Grid item className="medium-12 columns" key={3}>
           <Grid item className="people-you-might-know">
+            <a type="button" className="button-info info" href="/home">Volver</a>
             <Grid item className="row add-people-section">
               <Grid item className="small-12 medium-10 columns about-people">
                 <Grid item className="about-people-author">
@@ -134,7 +145,6 @@ class UserFeed extends Component {
                     </Typography>
                     <br />
                   </p>
-
                 </Grid>
               </Grid>
               <Grid container className="small-12 medium-2 columns add-friend">
@@ -156,19 +166,16 @@ class UserFeed extends Component {
               <Grid item className='container-form'>
                 <h4>{`${this.state.data.name}`}</h4>
                 <label>Nombre</label>
-                <input type="text" name="nameUpdate" placeholder={this.state.dataUsers.name} onChange={this.onChange} />
+                <input type="text" name="name" placeholder={this.state.dataUsers.name} onChange={this.onChange} />
                 <label>Direccion</label>
-                <input type="text" name="directionUpdate" placeholder={'Direccion'} onChange={this.onChange} />
+                <input type="text" name="direction" placeholder={'Direccion'} onChange={this.onChange} />
                 <label>Email</label>
-                <input type="text" name="emailUpdate" placeholder={this.state.dataUsers.email} onChange={this.onChange} />
+                <input type="text" name="email" placeholder={this.state.dataUsers.email} onChange={this.onChange} />
                 <label>Teléfono</label>
-                <input type="text" name="phoneUpdate" placeholder={this.state.dataUsers.phone} onChange={this.onChange} />
-                <label>Nombre de usuario</label>
-                <input type="text" name="usernameUpdate" placeholder={'Username'} onChange={this.onChange} />
+                <input type="text" name="phone" placeholder={this.state.dataUsers.phone} onChange={this.onChange} />
                 <label>Contraseña</label>
-                <input type="password" name="passwordUpdate" placeholder={this.state.dataUsers.password} onChange={this.onChange} />
-
-                <input type="submit" className="button" value="Editar" onClick={() => this.editUserFeed} />
+                <input type="password" name="password" placeholder={this.state.dataUsers.password} onChange={this.onChange} />
+                <input type="submit" className="button" value="Editar" onClick={() => this.editUserFeed()} />
                 <input type="button" className="button primary" value="Cancelar" onClick={() => this.setState({ showFormUpdateFeedUser: true })} />
               </Grid>
             </form>

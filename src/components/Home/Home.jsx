@@ -30,6 +30,7 @@ class Home extends Component {
     this.createNote = this.createNote.bind(this);
     this.deleteNote = this.deleteNote.bind(this);
     this.logout = this.logout.bind(this);
+    this.clearData = this.clearData.bind(this);
   }
 
   componentWillMount() {
@@ -40,7 +41,21 @@ class Home extends Component {
       this.setState({ redirectToReferrer: true });
     }
   }
-
+  clearData() {
+    this.state({
+      data: [],
+      notes: '',
+      userFeed: '',
+      redirectToReferrer: false,
+      name: '',
+      title: '',
+      description: '',
+      showForm: true,
+      showFormEdit: true,
+      titleUpdate: '',
+      descriptionUpdate: '',
+    })
+  }
   updateNote(data) {
     console.log("🚀 ~ file: Home.jsx ~ line 44 ~ Home ~ updateNote ~ data", data)
     this.setState({ showFormEdit: false, titleUpdate: data.title, descriptionUpdate: data.description, data: data })
@@ -171,13 +186,13 @@ class Home extends Component {
                   <input type="text" name="titleUpdate" placeholder={this.state.titleUpdate} onChange={this.onChange} />
                   <label>Descripción</label>
                   <input type="text" name="descriptionUpdate" placeholder={this.state.descriptionUpdate} onChange={this.onChange} />
-                  <input type="submit" className="button submit" value="Aceptar" onClick={() => this.updateNoteAction} />
+                  <input type="submit" className="button submit" value="Aceptar" onClick={this.updateNoteAction} />
                   <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showFormEdit: true })} />
                 </Grid>
               </Grid >
             </Grid>
           </form>
-          <Grid item hidden={!this.state.showForm}>
+          <Grid item hidden={!this.state.showForm} hidden={!this.state.showFormEdit || !this.state.showForm}>
             <input
               type="submit"
               value="New"
