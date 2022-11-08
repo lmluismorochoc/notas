@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import './Home.css';
 import axios from 'axios';
 import '../../styles/react-confirm-alert.css';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, IconButton, Typography } from '@material-ui/core';
 import Notes from '../Notes/Notes';
 
 class Home extends Component {
@@ -21,6 +21,7 @@ class Home extends Component {
       showFormEdit: true,
       titleUpdate: '',
       descriptionUpdate: '',
+      logout: false
     };
 
     this.getUserFeed = this.getUserFeed.bind(this);
@@ -56,12 +57,28 @@ class Home extends Component {
       descriptionUpdate: '',
     })
   }
+  getUserFeed() {
+    var dataParams = JSON.parse(localStorage.getItem("userData"));
+    this.setState({ data: dataParams });
+    axios.post(`http://162.243.161.34:8080/api/notes/find`, {
+      "idUser": dataParams.id
+    }
+    ).then((response) => {
+      if (response && response.data.code === 1) {
+        this.setState({ notes: response.data })
+      } else {
+        alert('Ocurrió un error')
+      }
+    }).catch((error) => {
+      console.log('error:', error);
+    });
+  }
   updateNote(data) {
-    console.log("🚀 ~ file: Home.jsx ~ line 44 ~ Home ~ updateNote ~ data", data)
-    this.setState({ showFormEdit: false, titleUpdate: data.title, descriptionUpdate: data.description, data: data })
+    this.setState({ showFormEdit: !this.state.showFormEdit, showForm: this.state.showFormEdit ? true : false, titleUpdate: data.title, descriptionUpdate: data.description, data: data })
   }
   updateNoteAction() {
     var data = this.state.data
+    console.log("🚀 ~ file: Home.jsx ~ line 82 ~ Home ~ updateNoteAction ~ data", data)
     if (this.state.descriptionUpdate && this.state.titleUpdate) {
       axios.post('http://162.243.161.34:8080/api/notes/update', {
         "id": data.id,
@@ -78,24 +95,6 @@ class Home extends Component {
       }).catch((error) => {
         console.log('error:', error);
       });
-    }
-  }
-
-  getUserFeed() {
-    let data = JSON.parse(localStorage.getItem("userData"));
-    this.setState(data);
-    axios.post(`http://162.243.161.34:8080/api/notes/find`
-    ).then((response) => {
-      if (response && response.data.code === 1) {
-        this.setState({ notes: response.data })
-      } else {
-        alert('Ocusrrio un error')
-      }
-    }).catch((error) => {
-      console.log('error:', error);
-    });
-    if (data) {
-      this.setState({ data: data })
     }
   }
 
@@ -147,19 +146,25 @@ class Home extends Component {
   }
 
   render() {
-    if (this.state.redirectToReferrer) {
-      // return (<Redirect to={'/login'}/>)
+    if (this.state.logout) {
+      return <Navigate to='/' />;
     }
 
     return (
       <Grid container className="row" id="Body">
         <Grid item className="medium-12 columns">
-          <Grid item container spacing={10} alignItems='center' direction='row' >
+          <Grid container spacing={10} direction='row' justifyContent='space-between' >
             <Grid item>
+              <IconButton onClick={() => <a href={`/user/${this.state.data.id}`} />}>
+                <img alt='logout' src='/assets/img/user.png' width={'30px'} height={'30px'} />
+              </IconButton>
               <a href={`/user/${this.state.data.id}`}>{this.state.data.name}</a>
             </Grid>
             <Grid item>
-              <a href="/" onClick={this.logout} className="logout">Logout</a>
+              <IconButton onClick={() => this.setState({ logout: true })}>
+                <img alt='logout' src='/assets/img/logout.png' width={'30px'} height={'30px'} />
+              </IconButton>
+              {/* <a href="/" onClick={this.logout} className="logout">Logout</a> */}
             </Grid>
           </Grid>
           <form onSubmit={this.createNote} hidden={this.state.showForm}>
@@ -186,7 +191,7 @@ class Home extends Component {
                   <input type="text" name="titleUpdate" placeholder={this.state.titleUpdate} onChange={this.onChange} />
                   <label>Descripción</label>
                   <input type="text" name="descriptionUpdate" placeholder={this.state.descriptionUpdate} onChange={this.onChange} />
-                  <input type="submit" className="button submit" value="Aceptar" onClick={this.updateNoteAction} />
+                  <input type="submit" className="button submit" value="Aceptar" />
                   <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showFormEdit: true })} />
                 </Grid>
               </Grid >

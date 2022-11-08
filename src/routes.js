@@ -11,7 +11,7 @@ const Routess = () => (
     <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/home" element={<Home />} />
-      <Route path="/Registro" element={<Signup />} />
+      <Route path="/registro" element={<Signup />} />
       <Route path='/user/:id' element={<UserFeed />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

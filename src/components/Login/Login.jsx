@@ -59,7 +59,7 @@ class Login extends Component {
               <label>Contraseña</label>
               <input type="password" name="password" placeholder="Contraseña" onChange={this.onChange} />
               <input type="submit" className="button success" value="Login" onClick={this.login} />
-              <a type="button" className="button-info info" href="/Registro">Registrate</a>
+              <a type="button" className="button-info info" href="/registro">Registrate</a>
             </Grid>
           </Grid>
         </Grid>

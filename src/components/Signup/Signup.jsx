@@ -9,7 +9,6 @@ class Signup extends Component {
     super(props);
     this.state = {
       name: '',
-      direction: '',
       email: '',
       phone: '',
       username: '',
@@ -21,23 +20,18 @@ class Signup extends Component {
     this.onChange = this.onChange.bind(this);
   }
   signup() {
-    if (this.state.name && this.state.direction && this.state.email && this.state.phone && this.state.username && this.state.password) {
+    if (this.state.name && this.state.email && this.state.phone && this.state.password) {
       axios.post('http://162.243.161.34:8080/api/users/create', {
-        "name": this.state.username,
-        "direction": this.state.direction,
+        "name": this.state.name,
         "phone": this.state.phone,
         "email": this.state.email,
         "password": this.state.password,
         "type": "user"
       }
-      ).then((response) => {
+      ).then(response => {
         console.log("🚀 ~ file: Signup.jsx ~ line 35 ~ Signup ~ ).then ~ response", response)
-        alert('Procesando')
-        if (response) {
-          this.setState({ redirectToReferrer: true })
-          alert(response.data.message)
-        }
         this.setState({ redirectToReferrer: true })
+        alert(response.data.message)
       }).catch((error) => {
         console.log('error:', error);
       });
@@ -46,13 +40,13 @@ class Signup extends Component {
 
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
-    if (this.state.name && this.state.direction && this.state.email && this.state.phone && this.state.username && this.state.password) {
+    if (this.state.name && this.state.email && this.state.phone && this.state.password) {
       this.setState({ isFormComplete: false })
     }
   }
   render() {
     if (this.state.redirectToReferrer) {
-      return <Navigate to='/home' />
+      return <Navigate to='/' />
     }
     return (
       <Grid container>
@@ -61,22 +55,18 @@ class Signup extends Component {
         </Grid>
         <Grid item container sx={12} sm={6} className="row" id="Body">
           <Grid item className="medium-5 columns left box-container">
-            <form onSubmit={this.signup}>
+            <form id='logRegisterForm'>
               <Grid item className='container-form'>
                 <h4>Registro</h4>
                 <label>Nombre</label>
                 <input type="text" name="name" placeholder="Name" onChange={this.onChange} />
-                <label>Direccion</label>
-                <input type="text" name="direction" placeholder="Dirección" onChange={this.onChange} />
                 <label>Email</label>
                 <input type="text" name="email" placeholder="Email" onChange={this.onChange} />
                 <label>Teléfono</label>
                 <input type="text" name="phone" placeholder="Teléfono" onChange={this.onChange} />
-                <label>Nombre de usuario</label>
-                <input type="text" name="username" placeholder="Username" onChange={this.onChange} />
                 <label>Contraseña</label>
                 <input type="password" name="password" placeholder="Password" onChange={this.onChange} />
-                <input type="submit" disabled={this.state.isFormComplete} className="button" value="Registrate" onClick={this.signup} />
+                <input type="button" disabled={this.state.isFormComplete} className="button" value="Registrate" onClick={this.signup} />
                 <a href="/">Cancelar</a>
               </Grid>
             </form>
