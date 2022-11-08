@@ -15,10 +15,13 @@ class UserFeed extends Component {
       returnLog: false,
       returnHome: false,
       name: '',
-      direction: '',
       email: '',
       phone: '',
       password: '',
+      nameUpdate: '',
+      emailUpdate: '',
+      phoneUpdate: '',
+      passwordUpdate: '',
     };
     this.deleteUserFeed = this.deleteUserFeed.bind(this);
     this.getUserFeed = this.getUserFeed.bind(this);
@@ -53,7 +56,12 @@ class UserFeed extends Component {
     ).then((response) => {
       if (response.data.code === 1) {
         var userFeed = response.data.data.find(element => element.id === id)
-        this.setState({ dataUsers: userFeed })
+        this.setState({
+          nameUpdate: userFeed.name,
+          emailUpdate: userFeed.email,
+          phoneUpdate: userFeed.phone,
+          passwordUpdate: userFeed.password,
+        })
       } else {
         alert('Ocurrio un error')
       }
@@ -63,12 +71,6 @@ class UserFeed extends Component {
   }
 
   editUserFeed() {
-    this.setState({
-      name: this.state.dataUsers.name,
-      email: this.state.dataUsers.email,
-      phone: this.state.dataUsers.phone,
-      password: this.state.dataUsers.password
-    })
     if (this.state.name &&
       this.state.direction &&
       this.state.email &&
@@ -162,20 +164,18 @@ class UserFeed extends Component {
         </Grid>
         <Grid item container sx={12} sm={6} className="row" id="Body">
           <Grid item className="medium-5 columns left box-container">
-            <form id='updateUser' onSubmit={this.editUserFeed} hidden={this.state.showFormUpdateFeedUser}>
+            <form id='updateUser' hidden={this.state.showFormUpdateFeedUser}>
               <Grid item className='container-form'>
                 <h4>{`${this.state.data.name}`}</h4>
                 <label>Nombre</label>
-                <input type="text" name="name" placeholder={this.state.dataUsers.name} onChange={this.onChange} />
-                <label>Direccion</label>
-                <input type="text" name="direction" placeholder={'Direccion'} onChange={this.onChange} />
+                <input type="text" name="nameUpdate" value={this.state.nameUpdate} onChange={this.onChange} />
                 <label>Email</label>
-                <input type="text" name="email" placeholder={this.state.dataUsers.email} onChange={this.onChange} />
+                <input type="text" name="emailUpdate" value={this.state.emailUpdate} onChange={this.onChange} />
                 <label>Teléfono</label>
-                <input type="text" name="phone" placeholder={this.state.dataUsers.phone} onChange={this.onChange} />
+                <input type="text" name="phoneUpdate" value={this.state.phoneUpdate} onChange={this.onChange} />
                 <label>Contraseña</label>
-                <input type="password" name="password" placeholder={this.state.dataUsers.password} onChange={this.onChange} />
-                <input type="submit" className="button" value="Editar" onClick={() => this.editUserFeed()} />
+                <input type="password" name="passwordUpdate" value={this.state.passwordUpdate} onChange={this.onChange} />
+                <input type="button" className="button" value="Editar" onClick={this.editUserFeed()} />
                 <input type="button" className="button primary" value="Cancelar" onClick={() => this.setState({ showFormUpdateFeedUser: true })} />
               </Grid>
             </form>

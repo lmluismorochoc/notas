@@ -11,7 +11,7 @@ const Contacts = ({ contacts, deleteContact, updateContact }) => {
                         return <li key={contact.id}>
                             <Grid container direction='row' justifyContent='space-around'>
                                 <Grid item sx={8}>
-                                    <a key={contact.id} onClick={() => { }}>{contact.name}</a>
+                                    <a key={contact.id} onClick={() => updateContact(contact)}>{contact.name}</a>
                                 </Grid>
                                 <Grid item sx={2}>
                                     <IconButton
@@ -28,7 +28,6 @@ const Contacts = ({ contacts, deleteContact, updateContact }) => {
                             <p>{contact.email}</p>
                             <p>{contact.phone}</p>
                         </li>
-
                     })
                 }
             </ul>

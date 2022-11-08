@@ -57,6 +57,7 @@ class Home extends Component {
     this.state({
       data: [],
       notes: '',
+      contact: '',
       userFeed: '',
       redirectToReferrer: false,
       name: '',
@@ -69,9 +70,10 @@ class Home extends Component {
       name: '',
       email: '',
       phone: '',
+      idUpdate: '',
       nameUpdate: '',
       emailUpdate: '',
-      phoneUdate: '',
+      phoneUpdate: '',
     })
   }
   getUserFeed() {
@@ -106,6 +108,9 @@ class Home extends Component {
       ).then((response) => {
         if (response.data.code === 1) {
           alert(response.data.message)
+          this.getUserFeed
+          window.location.reload(false)
+
         } else {
           alert('Ocusrrio un error')
         }
@@ -171,11 +176,41 @@ class Home extends Component {
       console.log('error:', error);
     });
   }
-  updateContact() {
-
+  updateContact(data) {
+    console.log("🚀 ~ file: Home.jsx ~ line 175 ~ Home ~ updateContact ~ data", data)
+    this.setState({
+      showFormContactUpdate: !this.state.showFormEdit,
+      showFormContact: this.state.showFormEdit ? true : false,
+      nameUpdate: data.name,
+      emailUpdate: data.email,
+      phoneUpdate: data.phone,
+      idUpdate: data.id,
+    })
   }
   updateContactAction() {
-
+    axios.post('http://162.243.161.34:8080/api/users/update', {
+      "id": this.state.idUpdate,
+      "name": this.state.nameUpdate,
+      "phone": this.state.phoneUpdate,
+      "mail": this.state.emailUpdate,
+      "type": "user"
+    }
+    ).then((response) => {
+      console.log("🚀 ~ file: UserFeed.js ~ line 89 ~ UserFeed ~ ).then ~ response", response)
+      if (response.data.code === 1) {
+        this.setState({ returnHome: true })
+        this.clearData
+        this.getUserFeed
+        alert(response.data.message);
+        window.location.reload(false)
+      } else {
+        this.clearData
+        alert('Ocusrrio un error')
+      }
+    }).catch((error) => {
+      console.log('error:', error);
+      this.clearData
+    });
   }
   createContact() {
     if (this.state.name && this.state.email && this.state.phone) {
@@ -232,7 +267,8 @@ class Home extends Component {
               <IconButton onClick={() => <a href={`/user/${this.state.data.id}`} />}>
                 <img alt='logout' src='/assets/img/user.png' width={'30px'} height={'30px'} />
               </IconButton>
-              <a href={`/user/${this.state.data.id}`}>{this.state.data.name}</a>
+              <a>{this.state.data.name}</a>
+
             </Grid>
             <Grid item>
               <IconButton onClick={() => this.setState({ logout: true })}>
@@ -243,7 +279,7 @@ class Home extends Component {
           </Grid>
           <Grid container>
             <Grid item>
-              <form onSubmit={this.createNote} hidden={this.state.showForm}>
+              <form hidden={this.state.showForm}>
                 <Grid item container sx={12} sm={6} className="row" id="Body">
                   <Grid item className="medium-5 columns left box-container">
                     <Grid item className='container-form'>
@@ -252,22 +288,22 @@ class Home extends Component {
                       <input type="text" name="title" placeholder="Identifica tu nota" onChange={this.onChange} />
                       <label>Descripción</label>
                       <input type="text" name="description" placeholder="Descripción" onChange={this.onChange} />
-                      <input type="submit" className="button submit" value="Crear" onClick={() => this.createNote} />
+                      <input type="button" className="button submit" value="Crear" onClick={this.createNote} />
                       <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showForm: true })} />
                     </Grid>
                   </Grid >
                 </Grid>
               </form>
-              <form onSubmit={this.updateNoteAction} hidden={this.state.showFormEdit}>
+              <form hidden={this.state.showFormEdit}>
                 <Grid item container sx={12} sm={6} className="row" id="Body">
                   <Grid item className="medium-5 columns left box-container">
                     <Grid item className='container-form'>
                       <h4>Edición</h4>
                       <label>Título</label>
-                      <input type="text" name="titleUpdate" placeholder={this.state.titleUpdate} onChange={this.onChange} />
+                      <input type="text" name="titleUpdate" value={this.state.titleUpdate} onChange={this.onChange} />
                       <label>Descripción</label>
-                      <input type="text" name="descriptionUpdate" placeholder={this.state.descriptionUpdate} onChange={this.onChange} />
-                      <input type="submit" className="button submit" value="Aceptar" />
+                      <input type="text" name="descriptionUpdate" value={this.state.descriptionUpdate} onChange={this.onChange} />
+                      <input type="button" className="button submit" value="Aceptar" onClick={this.updateNoteAction} />
                       <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showFormEdit: true })} />
                     </Grid>
                   </Grid >
@@ -292,17 +328,19 @@ class Home extends Component {
                   </Grid >
                 </Grid>
               </form>
-              <form onSubmit={this.updateNoteAction} hidden={this.state.showFormContactUpdate}>
+              <form hidden={this.state.showFormContactUpdate}>
                 <Grid item container sx={12} sm={6} className="row" id="Body">
                   <Grid item className="medium-5 columns left box-container">
                     <Grid item className='container-form'>
                       <h4>Edición</h4>
-                      <label>Título</label>
-                      <input type="text" name="titleUpdate" placeholder={this.state.titleUpdate} onChange={this.onChange} />
-                      <label>Descripción</label>
-                      <input type="text" name="descriptionUpdate" placeholder={this.state.descriptionUpdate} onChange={this.onChange} />
-                      <input type="submit" className="button submit" value="Aceptar" />
-                      <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showFormEdit: true })} />
+                      <label>Nombre</label>
+                      <input type="text" name="nameUpdate" value={this.state.nameUpdate} onChange={this.onChange} />
+                      <label>Email</label>
+                      <input type="text" name="emailUpdate" value={this.state.emailUpdate} onChange={this.onChange} />
+                      <label>Telefono</label>
+                      <input type="text" name="phoneUpdate" value={this.state.phoneUpdate} onChange={this.onChange} />
+                      <input type="button" className="button submit" value="Aceptar" onClick={this.updateContactAction} />
+                      <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showFormContactUpdate: true })} />
                     </Grid>
                   </Grid >
                 </Grid>
@@ -323,7 +361,7 @@ class Home extends Component {
                 type="submit"
                 value="Nuevo Contacto"
                 className="button"
-                onClick={() => this.setState({ showFormContact: false, showFormContactUpdate: true })} />
+                onClick={() => this.setState({ showFormContact: false, showFormEdit: true, })} />
             </Grid>
           </Grid>
         </Grid>
