@@ -31,7 +31,7 @@ class Signup extends Component {
       ).then(response => {
         console.log("🚀 ~ file: Signup.jsx ~ line 35 ~ Signup ~ ).then ~ response", response)
         this.setState({ redirectToReferrer: true })
-        alert(response.data.message)
+        alert('!Usuario creado')
       }).catch((error) => {
         console.log('error:', error);
       });

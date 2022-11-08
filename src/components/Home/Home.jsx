@@ -5,6 +5,7 @@ import axios from 'axios';
 import '../../styles/react-confirm-alert.css';
 import { Grid, IconButton, Typography } from '@material-ui/core';
 import Notes from '../Notes/Notes';
+import Contacts from '../Contacts/Contacts';
 
 class Home extends Component {
   constructor(props) {
@@ -12,6 +13,7 @@ class Home extends Component {
     this.state = {
       data: [],
       notes: '',
+      contacts: '',
       userFeed: '',
       redirectToReferrer: false,
       name: '',
@@ -21,22 +23,31 @@ class Home extends Component {
       showFormEdit: true,
       titleUpdate: '',
       descriptionUpdate: '',
-      logout: false
+      logout: false,
+      showFormContact: true,
+      showFormContactUpdate: true
+
     };
 
     this.getUserFeed = this.getUserFeed.bind(this);
     this.updateNote = this.updateNote.bind(this);
     this.updateNoteAction = this.updateNoteAction.bind(this);
-    this.onChange = this.onChange.bind(this);
     this.createNote = this.createNote.bind(this);
     this.deleteNote = this.deleteNote.bind(this);
+    this.updateContact = this.updateContact.bind(this);
+    this.updateContactAction = this.updateContactAction.bind(this);
+    this.createContact = this.createContact.bind(this);
+    this.deleteContact = this.deleteContact.bind(this);
+    this.onChange = this.onChange.bind(this);
     this.logout = this.logout.bind(this);
     this.clearData = this.clearData.bind(this);
+    this.getContact = this.getContact.bind(this);
   }
 
   componentWillMount() {
     if (localStorage.getItem("userData")) {
       this.getUserFeed();
+      this.getContact();
     }
     else {
       this.setState({ redirectToReferrer: true });
@@ -107,7 +118,7 @@ class Home extends Component {
       }
       ).then((response) => {
         if (response.data) {
-          alert(response.data.message)
+          alert('Nota Creada exitosamente')
         } else {
           alert('Ocusrrio un error')
         }
@@ -138,7 +149,35 @@ class Home extends Component {
       console.log('error:', error);
     });
   }
+  getContact() {
+    var dataParams = JSON.parse(localStorage.getItem("userData"));
+    this.setState({ data: dataParams });
+    axios.post(`http://162.243.161.34:8080/api/users/find`, {
+      "idUser": dataParams.id
+    }
+    ).then((response) => {
+      console.log("🚀 ~ file: Home.jsx ~ line 156 ~ Home ~ ).then ~ response", response)
+      if (response && response.data.code === 1) {
+        this.setState({ contacts: response.data })
+      } else {
+        alert('Ocurrió un error')
+      }
+    }).catch((error) => {
+      console.log('error:', error);
+    });
+  }
+  updateContact() {
 
+  }
+  updateContactAction() {
+
+  }
+  createContact() {
+
+  }
+  deleteContact() {
+
+  }
   logout() {
     localStorage.setItem("userData", '');
     localStorage.clear();
@@ -197,23 +236,50 @@ class Home extends Component {
               </Grid >
             </Grid>
           </form>
-          <Grid item hidden={!this.state.showForm} hidden={!this.state.showFormEdit || !this.state.showForm}>
-            <input
-              type="submit"
-              value="New"
-              className="button"
-              onClick={() => this.setState({ showForm: false, showFormEdit: true })} />
+          <Grid container justifyContent='space-between' >
+            <Grid item hidden={!this.state.showForm} hidden={!this.state.showFormEdit || !this.state.showForm}>
+              <input
+                type="submit"
+                value="Nueva nota"
+                className="button"
+                onClick={() => this.setState({ showForm: false, showFormEdit: true })} />
+            </Grid>
+            <Grid item hidden={!this.state.showForm} hidden={!this.state.showFormEdit || !this.state.showForm}>
+              <input
+                type="submit"
+                value="Nuevo Contacto"
+                className="button"
+                onClick={() => this.setState({ showFormContact: false, showFormContactUpdate: true })} />
+            </Grid>
           </Grid>
         </Grid>
         <Grid container>
-          {
-            this.state.notes.data ?
-              <Notes notes={this.state.notes.data} deleteNote={this.deleteNote} updateNote={this.updateNote} />
-              :
-              <Grid>
-                No hay notas
-              </Grid>
-          }
+          <Grid item xs={12} md={6}>
+            <Typography>
+              Notas
+            </Typography>
+            {
+              this.state.notes.data ?
+                <Notes notes={this.state.notes.data} deleteNote={this.deleteNote} updateNote={this.updateNote} />
+                :
+                <Grid>
+                  No hay notas
+                </Grid>
+            }
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography>
+              Contactos
+            </Typography>
+            {
+              this.state.notes.data ?
+                <Contacts contacts={this.state.contacts.data} deleteContact={this.deleteContact} updateContact={this.updateContact} />
+                :
+                <Grid>
+                  No hay notas
+                </Grid>
+            }
+          </Grid>
         </Grid>
       </Grid >
     );
