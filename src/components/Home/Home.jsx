@@ -66,6 +66,12 @@ class Home extends Component {
       showFormEdit: true,
       titleUpdate: '',
       descriptionUpdate: '',
+      name: '',
+      email: '',
+      phone: '',
+      nameUpdate: '',
+      emailUpdate: '',
+      phoneUdate: '',
     })
   }
   getUserFeed() {
@@ -130,11 +136,11 @@ class Home extends Component {
     }
   }
   onChange(e) {
+    console.log("🚀 ~ file: Home.jsx ~ line 139 ~ Home ~ onChange ~ e", e)
     this.setState({ [e.target.name]: e.target.value });
   }
 
   deleteNote(id) {
-    console.log("🚀 ~ file: Home.jsx ~ line 91 ~ Home ~ deleteNote ~ id", id)
     axios.post('http://162.243.161.34:8080/api/notes/delete', {
       "id": id
     }
@@ -156,7 +162,6 @@ class Home extends Component {
       "idUser": dataParams.id
     }
     ).then((response) => {
-      console.log("🚀 ~ file: Home.jsx ~ line 156 ~ Home ~ ).then ~ response", response)
       if (response && response.data.code === 1) {
         this.setState({ contacts: response.data })
       } else {
@@ -173,10 +178,40 @@ class Home extends Component {
 
   }
   createContact() {
-
+    if (this.state.name && this.state.email && this.state.phone) {
+      axios.post('http://162.243.161.34:8080/api/users/create', {
+        "idUser": this.state.data.id,
+        "name": this.state.name,
+        "phone": this.state.phone,
+        "email": this.state.email,
+      }
+      ).then(response => {
+        if (response.data.code === 1) {
+          this.getContact
+          alert('!Contacto creado')
+          window.location.reload(false)
+        }
+      }).catch((error) => {
+        console.log('error:', error);
+      });
+    } else {
+      alert('Ocurrio un Error')
+    }
   }
-  deleteContact() {
-
+  deleteContact(id) {
+    axios.post('http://162.243.161.34:8080/api/users/delete', {
+      "id": id,
+    }
+    ).then((response) => {
+      if (response.data.message) {
+        alert('Contacto eliminado')
+        window.location.reload(false)
+      } else {
+        alert('Ocusrrio un error')
+      }
+    }).catch((error) => {
+      console.log('error:', error);
+    });
   }
   logout() {
     localStorage.setItem("userData", '');
@@ -206,36 +241,75 @@ class Home extends Component {
               {/* <a href="/" onClick={this.logout} className="logout">Logout</a> */}
             </Grid>
           </Grid>
-          <form onSubmit={this.createNote} hidden={this.state.showForm}>
-            <Grid item container sx={12} sm={6} className="row" id="Body">
-              <Grid item className="medium-5 columns left box-container">
-                <Grid item className='container-form'>
-                  <h4>Nueva nota</h4>
-                  <label>Título</label>
-                  <input type="text" name="title" placeholder="Identifica tu nota" onChange={this.onChange} />
-                  <label>Descripción</label>
-                  <input type="text" name="description" placeholder="Descripción" onChange={this.onChange} />
-                  <input type="submit" className="button submit" value="Crear" onClick={() => this.createNote} />
-                  <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showForm: true })} />
+          <Grid container>
+            <Grid item>
+              <form onSubmit={this.createNote} hidden={this.state.showForm}>
+                <Grid item container sx={12} sm={6} className="row" id="Body">
+                  <Grid item className="medium-5 columns left box-container">
+                    <Grid item className='container-form'>
+                      <h4>Nueva nota</h4>
+                      <label>Título</label>
+                      <input type="text" name="title" placeholder="Identifica tu nota" onChange={this.onChange} />
+                      <label>Descripción</label>
+                      <input type="text" name="description" placeholder="Descripción" onChange={this.onChange} />
+                      <input type="submit" className="button submit" value="Crear" onClick={() => this.createNote} />
+                      <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showForm: true })} />
+                    </Grid>
+                  </Grid >
                 </Grid>
-              </Grid >
-            </Grid>
-          </form>
-          <form onSubmit={this.updateNoteAction} hidden={this.state.showFormEdit}>
-            <Grid item container sx={12} sm={6} className="row" id="Body">
-              <Grid item className="medium-5 columns left box-container">
-                <Grid item className='container-form'>
-                  <h4>Edición</h4>
-                  <label>Título</label>
-                  <input type="text" name="titleUpdate" placeholder={this.state.titleUpdate} onChange={this.onChange} />
-                  <label>Descripción</label>
-                  <input type="text" name="descriptionUpdate" placeholder={this.state.descriptionUpdate} onChange={this.onChange} />
-                  <input type="submit" className="button submit" value="Aceptar" />
-                  <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showFormEdit: true })} />
+              </form>
+              <form onSubmit={this.updateNoteAction} hidden={this.state.showFormEdit}>
+                <Grid item container sx={12} sm={6} className="row" id="Body">
+                  <Grid item className="medium-5 columns left box-container">
+                    <Grid item className='container-form'>
+                      <h4>Edición</h4>
+                      <label>Título</label>
+                      <input type="text" name="titleUpdate" placeholder={this.state.titleUpdate} onChange={this.onChange} />
+                      <label>Descripción</label>
+                      <input type="text" name="descriptionUpdate" placeholder={this.state.descriptionUpdate} onChange={this.onChange} />
+                      <input type="submit" className="button submit" value="Aceptar" />
+                      <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showFormEdit: true })} />
+                    </Grid>
+                  </Grid >
                 </Grid>
-              </Grid >
+              </form>
             </Grid>
-          </form>
+            <Grid item>
+              <form hidden={this.state.showFormContact}>
+                <Grid item container sx={12} sm={6} className="row" id="Body">
+                  <Grid item className="medium-5 columns left box-container">
+                    <Grid item className='container-form'>
+                      <h4>Nuevo Contacto</h4>
+                      <label>Nombre</label>
+                      <input type="text" name="name" placeholder="Nombre del contancto" onChange={this.onChange} />
+                      <label>Email</label>
+                      <input type="text" name="email" placeholder="Correo electrónico" onChange={this.onChange} />
+                      <label>Telefono</label>
+                      <input type="text" name="phone" placeholder="Telefono" onChange={this.onChange} />
+                      <input type="button" className="button submit" value="Añadir contacto" onClick={this.createContact} />
+                      <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showFormContact: true })} />
+                    </Grid>
+                  </Grid >
+                </Grid>
+              </form>
+              <form onSubmit={this.updateNoteAction} hidden={this.state.showFormContactUpdate}>
+                <Grid item container sx={12} sm={6} className="row" id="Body">
+                  <Grid item className="medium-5 columns left box-container">
+                    <Grid item className='container-form'>
+                      <h4>Edición</h4>
+                      <label>Título</label>
+                      <input type="text" name="titleUpdate" placeholder={this.state.titleUpdate} onChange={this.onChange} />
+                      <label>Descripción</label>
+                      <input type="text" name="descriptionUpdate" placeholder={this.state.descriptionUpdate} onChange={this.onChange} />
+                      <input type="submit" className="button submit" value="Aceptar" />
+                      <input type="button" className="button info" value="Cancelar" onClick={() => this.setState({ showFormEdit: true })} />
+                    </Grid>
+                  </Grid >
+                </Grid>
+              </form>
+            </Grid>
+          </Grid>
+
           <Grid container justifyContent='space-between' >
             <Grid item hidden={!this.state.showForm} hidden={!this.state.showFormEdit || !this.state.showForm}>
               <input
